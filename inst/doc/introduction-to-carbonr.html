@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Introduction to carbonr</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to <code>carbonr</code></h1>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p><code>carbonr</code> is a package in R to conveniently calculate
+carbon-equivalent emissions.</p>
+<p>The emissions values in the calculations are mostly from the <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023">UK
+Government report (2023)</a> when available. It is specified where the
+calculations have come from if they are not from the UK Government
+report (2023).</p>
+</div>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p><code>carbonr</code> aims to provide a reliable and reproducible
+approach to calculating emissions levels, ensuring that the results can
+be saved, edited, and redistributed easily. Further,
+<code>carbonr</code> aims to be transparent in its calculations and
+values applied. This has the bonus of allowing for flexibility and
+customisation in estimating carbon-equivalent emissions.</p>
+<p>The vision for <code>carbonr</code> is to expand and become more
+comprehensive. We invite contributions from the community to extend the
+package’s functionality, build additional features, and transform it
+into a more robust tool for estimating carbon-equivalent emissions.
+Similarly, we invite open discussions and contribution to capture
+different perspectives and enhancing the functionality of the
+package.</p>
+<p>Finally, <code>carbonr</code> aims to make the estimation of
+carbon-equivalent emissions more accessible by offering a user-friendly
+front-end interface using Shiny. This ensures that the tools are easier
+to use, even for individuals with limited programming experience.</p>
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p>You can install the development version of carbonr from <a href="https://github.com/">GitHub</a>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;IDEMSInternational/carbonr&quot;</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+</div>
+<div id="usage" class="section level2">
+<h2>Usage</h2>
+<p>Currently in <code>carbonr</code>, you can calculate your emissions
+from raw materials, such as raw fuels, paper, or metal emissions, or you
+can calculate from different categories such as flights, overall office
+or household estimated emissions, or vehicles. There are additional
+options relating specifically to operating theatres as well. Functions
+include:</p>
+<ul>
+<li><code>airplane_emissions()</code></li>
+<li><code>ferry_emissions()</code></li>
+<li><code>rail_emissions()</code></li>
+<li><code>land_emissions()</code></li>
+<li><code>vehicle_emissions()</code></li>
+<li><code>hotel_emissions()</code></li>
+<li><code>building_emissions()</code></li>
+<li><code>office_emissions()</code></li>
+<li><code>household_emissions()</code></li>
+<li><code>construction_emissions()</code></li>
+<li><code>electrical_emissions()</code></li>
+<li><code>material_emissions()</code></li>
+<li><code>metal_emissions()</code></li>
+<li><code>paper_emissions()</code></li>
+<li><code>plastic_emissions()</code></li>
+<li><code>raw_fuels()</code></li>
+<li><code>anaesthetic_emissions()</code></li>
+<li><code>clinical_emissions()</code></li>
+<li><code>clinical_theatre_data()</code></li>
+</ul>
+<p>These all return carbon-equivalent emissions in tonnes.</p>
+<p>A shiny app is also available by <code>shiny_emissions()</code> to
+calculate carbon-equivalent emissions with a GUI.</p>
+<p>We give some small examples in using the functions in
+<code>carbonr()</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(carbonr)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>To calculate emissions for a flight between Vancouver and Toronto, we
+first want to find the name of the airports. We do this using the
+<code>airport_finder()</code> function:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">airport_finder</span>(<span class="at">name =</span> <span class="st">&quot;Vancouver&quot;</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Name</th>
+<th align="left">City</th>
+<th align="left">Country</th>
+<th align="left">IATA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Vancouver International Airport</td>
+<td align="left">Vancouver</td>
+<td align="left">Canada</td>
+<td align="left">YVR</td>
+</tr>
+<tr class="even">
+<td align="left">Vancouver Harbour Water Aerodrome</td>
+<td align="left">Vancouver</td>
+<td align="left">Canada</td>
+<td align="left">CXH</td>
+</tr>
+<tr class="odd">
+<td align="left">Vancouver International Seaplane Base</td>
+<td align="left">Vancouver</td>
+<td align="left">Canada</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">airport_finder</span>(<span class="at">name =</span> <span class="st">&quot;Toronto&quot;</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Name</th>
+<th align="left">City</th>
+<th align="left">Country</th>
+<th align="left">IATA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Billy Bishop Toronto City Centre Airport</td>
+<td align="left">Toronto</td>
+<td align="left">Canada</td>
+<td align="left">YTZ</td>
+</tr>
+<tr class="even">
+<td align="left">Toronto/Oshawa Executive Airport</td>
+<td align="left">Oshawa</td>
+<td align="left">Canada</td>
+<td align="left">YOO</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>Now we can find the overall emission value using the appropriate IATA
+code. These distances are calculated using the Haversine formula:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">airplane_emissions</span>(<span class="st">&quot;YVR&quot;</span>, <span class="st">&quot;YTZ&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.9876006</span></span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>A similar approach can be performed for ferry emissions. For example,
+to calculate emissions for a round trip ferry from Melbourne to New
+York, we first find the appropriate seaport code with the
+<code>seaport_finder()</code> function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">seaport_finder</span>(<span class="at">country =</span> <span class="st">&quot;Australia&quot;</span>, <span class="at">city =</span> <span class="st">&quot;Melbourne&quot;</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="34%" />
+<col width="16%" />
+<col width="12%" />
+<col width="11%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">city</th>
+<th align="left">country_code</th>
+<th align="left">port_code</th>
+<th align="right">latitude</th>
+<th align="right">longitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Australia</td>
+<td align="left">Point Henry Pier/Melbourne</td>
+<td align="left">AU</td>
+<td align="left">PHP</td>
+<td align="right">-38.07</td>
+<td align="right">144.26</td>
+</tr>
+<tr class="even">
+<td align="left">Australia</td>
+<td align="left">Port Melbourne</td>
+<td align="left">AU</td>
+<td align="left">POR</td>
+<td align="right">-37.50</td>
+<td align="right">144.56</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">seaport_finder</span>(<span class="at">country =</span> <span class="st">&quot;US&quot;</span>, <span class="at">city =</span> <span class="st">&quot;New York&quot;</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="24%" />
+<col width="17%" />
+<col width="13%" />
+<col width="12%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">country</th>
+<th align="left">city</th>
+<th align="left">country_code</th>
+<th align="left">port_code</th>
+<th align="right">latitude</th>
+<th align="right">longitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">United States</td>
+<td align="left">Brooklyn/New York</td>
+<td align="left">US</td>
+<td align="left">BOY</td>
+<td align="right">40.44</td>
+<td align="right">-73.56</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>Now we can find the overall emission value using the appropriate
+seaport code:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">ferry_emissions</span>(<span class="st">&quot;POR&quot;</span>, <span class="st">&quot;BOY&quot;</span>, <span class="at">round_trip =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; [1] 4.42413</span></span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>For the UK we can calculate emissions for a train journey. Like with
+<code>airplane_emissions()</code> and <code>ferry_emissions()</code>,
+the distances are calculated using the Haversine formula - this is
+calculated as the crow flies. As before, we first find the stations. As
+always, for a more accurate estimation we can include via points:</p>
+<p>To calculate emissions for a train journey from Bristol Temple Meads
+to Edinburgh Waverley, via Birmingham New Street. We can use a data
+frame and <code>purrr::map()</code> to read through the data easier:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>multiple_ind <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(<span class="sc">~</span>ID, <span class="sc">~</span>station,</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>                        <span class="st">&quot;From&quot;</span>, <span class="st">&quot;Bristol&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>                        <span class="st">&quot;To&quot;</span>, <span class="st">&quot;Edinburgh&quot;</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                        <span class="st">&quot;Via&quot;</span>, <span class="st">&quot;Birmingham&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> multiple_ind<span class="sc">$</span>station, <span class="at">.f =</span> <span class="sc">~</span><span class="fu">rail_finder</span>(.x)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="21%" />
+<col width="12%" />
+<col width="19%" />
+<col width="19%" />
+<col width="7%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">station_code</th>
+<th align="left">station</th>
+<th align="left">region</th>
+<th align="left">county</th>
+<th align="left">district</th>
+<th align="right">latitude</th>
+<th align="right">longitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BPW</td>
+<td align="left">Bristol Parkway</td>
+<td align="left">South West</td>
+<td align="left">South Gloucestershire</td>
+<td align="left">South Gloucestershire</td>
+<td align="right">51.51380</td>
+<td align="right">-2.542163</td>
+</tr>
+<tr class="even">
+<td align="left">BRI</td>
+<td align="left">Bristol Temple Meads</td>
+<td align="left">South West</td>
+<td align="left">Bristol City Of</td>
+<td align="left">Bristol City Of</td>
+<td align="right">51.44914</td>
+<td align="right">-2.581315</td>
+</tr>
+<tr class="odd">
+<td align="left">EDB</td>
+<td align="left">Edinburgh</td>
+<td align="left">Scotland</td>
+<td align="left">Edinburgh City Of</td>
+<td align="left">Edinburgh City Of</td>
+<td align="right">55.95239</td>
+<td align="right">-3.188228</td>
+</tr>
+<tr class="even">
+<td align="left">EDP</td>
+<td align="left">Edinburgh Park</td>
+<td align="left">Scotland</td>
+<td align="left">Edinburgh City Of</td>
+<td align="left">Edinburgh City Of</td>
+<td align="right">55.92755</td>
+<td align="right">-3.307664</td>
+</tr>
+<tr class="odd">
+<td align="left">BBS</td>
+<td align="left">Birmingham Bordesley</td>
+<td align="left">West Midlands</td>
+<td align="left">West Midlands</td>
+<td align="left">Birmingham</td>
+<td align="right">52.47187</td>
+<td align="right">-1.877769</td>
+</tr>
+<tr class="even">
+<td align="left">BHI</td>
+<td align="left">Birmingham International</td>
+<td align="left">West Midlands</td>
+<td align="left">West Midlands</td>
+<td align="left">Solihull</td>
+<td align="right">52.45081</td>
+<td align="right">-1.725857</td>
+</tr>
+<tr class="odd">
+<td align="left">BHM</td>
+<td align="left">Birmingham New Street</td>
+<td align="left">West Midlands</td>
+<td align="left">West Midlands</td>
+<td align="left">Birmingham</td>
+<td align="right">52.47782</td>
+<td align="right">-1.900205</td>
+</tr>
+<tr class="even">
+<td align="left">BMO</td>
+<td align="left">Birmingham Moor Street</td>
+<td align="left">West Midlands</td>
+<td align="left">West Midlands</td>
+<td align="left">Birmingham</td>
+<td align="right">52.47908</td>
+<td align="right">-1.892473</td>
+</tr>
+<tr class="odd">
+<td align="left">BSW</td>
+<td align="left">Birmingham Snow Hill</td>
+<td align="left">West Midlands</td>
+<td align="left">West Midlands</td>
+<td align="left">Birmingham</td>
+<td align="right">52.48335</td>
+<td align="right">-1.899088</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>Then we can estimate the overall tCO2e emissions for the journey:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">rail_emissions</span>(<span class="at">from =</span> <span class="st">&quot;Bristol Temple Meads&quot;</span>, <span class="at">to =</span> <span class="st">&quot;Edinburgh&quot;</span>, <span class="at">via =</span> <span class="st">&quot;Birmingham New Street&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.02304686</span></span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>We can use a data frame to read through the data easier in general.
+For example, if we had data for multiple individuals, or journeys:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>multiple_ind <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(<span class="sc">~</span>ID, <span class="sc">~</span>rail_from, <span class="sc">~</span>rail_to, <span class="sc">~</span>air_from, <span class="sc">~</span>air_to, <span class="sc">~</span>air_via,</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>                        <span class="st">&quot;Clint&quot;</span>, <span class="st">&quot;Bristol Temple Meads&quot;</span>, <span class="st">&quot;Paddington&quot;</span>, <span class="st">&quot;LHR&quot;</span>, <span class="st">&quot;KIS&quot;</span>, <span class="st">&quot;NBO&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>                        <span class="st">&quot;Zara&quot;</span>, <span class="st">&quot;Bristol Temple Meads&quot;</span>, <span class="st">&quot;Paddington&quot;</span>, <span class="st">&quot;LHR&quot;</span>, <span class="st">&quot;LAX&quot;</span>, <span class="st">&quot;ORL&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>multiple_ind <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">plane_emissions =</span> <span class="fu">airplane_emissions</span>(air_from,</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>                                              air_to,</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>                                              air_via)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">train_emissions =</span> <span class="fu">rail_emissions</span>(rail_from,</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>                                          rail_to)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">total_emissions =</span> plane_emissions <span class="sc">+</span> train_emissions)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<colgroup>
+<col width="5%" />
+<col width="19%" />
+<col width="10%" />
+<col width="8%" />
+<col width="6%" />
+<col width="7%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">rail_from</th>
+<th align="left">rail_to</th>
+<th align="left">air_from</th>
+<th align="left">air_to</th>
+<th align="left">air_via</th>
+<th align="right">plane_emissions</th>
+<th align="right">train_emissions</th>
+<th align="right">total_emissions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Clint</td>
+<td align="left">Bristol Temple Meads</td>
+<td align="left">Paddington</td>
+<td align="left">LHR</td>
+<td align="left">KIS</td>
+<td align="left">NBO</td>
+<td align="right">2.090193</td>
+<td align="right">0.0074051</td>
+<td align="right">2.097598</td>
+</tr>
+<tr class="even">
+<td align="left">Zara</td>
+<td align="left">Bristol Temple Meads</td>
+<td align="left">Paddington</td>
+<td align="left">LHR</td>
+<td align="left">LAX</td>
+<td align="left">ORL</td>
+<td align="right">3.085740</td>
+<td align="right">0.0074051</td>
+<td align="right">3.093146</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>Additional emissions can be calculated as well. For example, office
+emissions</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">office_emissions</span>(<span class="at">specify =</span> <span class="cn">TRUE</span>, <span class="at">electricity_kWh =</span> <span class="fl">255.2</span>, <span class="at">water_supply =</span> <span class="dv">85</span>, <span class="at">heat_kWh =</span> <span class="dv">8764</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.002345161</span></span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>Alternatively, more advance emissions can be given with other
+functions, such as the <code>material_emissions()</code>,
+<code>construction_emissions()</code>, and <code>raw_fuels()</code>
+functions.</p>
+<div id="operating-theatre-emissions" class="section level3">
+<h3>Operating Theatre Emissions</h3>
+<p>Upon request, we have introduced the estimation of CO2e emissions
+specifically for operating theatres. We walk through a small example to
+demonstrate this function.</p>
+<p>To begin, we’ll create a dummy data frame of clinical data. The data
+frame will serve as a representative sample of the information typically
+found in operating theatres. It could include various parameters such as
+the anaesthetic type (desflurane, isoflurane), the wet clinical waste in
+kg, the electricity in kWh, and general waste in kg.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> <span class="fu">c</span>(<span class="st">&quot;10/04/2000&quot;</span>, <span class="st">&quot;10/04/2000&quot;</span>, <span class="st">&quot;11/04/2000&quot;</span>, <span class="st">&quot;11/04/2000&quot;</span>, <span class="st">&quot;12/04/2000&quot;</span>, <span class="st">&quot;12/04/2000&quot;</span>),</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="at">theatre =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>), <span class="at">times =</span> <span class="dv">3</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="at">desflurane =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">28</span>, <span class="dv">0</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="at">isoflurane =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">37</span>, <span class="dv">0</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">35</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="at">clinical_waste =</span> <span class="fu">c</span>(<span class="dv">80</span>, <span class="dv">90</span>, <span class="dv">80</span>, <span class="dv">100</span>, <span class="dv">120</span>, <span class="dv">110</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="at">electricity_kwh =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">110</span>, <span class="dv">90</span>, <span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">110</span>),</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="at">general_waste =</span> <span class="fu">c</span>(<span class="dv">65</span>, <span class="dv">55</span>, <span class="dv">70</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">30</span>))</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="9%" />
+<col width="12%" />
+<col width="12%" />
+<col width="17%" />
+<col width="18%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">time</th>
+<th align="left">theatre</th>
+<th align="right">desflurane</th>
+<th align="right">isoflurane</th>
+<th align="right">clinical_waste</th>
+<th align="right">electricity_kwh</th>
+<th align="right">general_waste</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">10/04/2000</td>
+<td align="left">A</td>
+<td align="right">30</td>
+<td align="right">0</td>
+<td align="right">80</td>
+<td align="right">100</td>
+<td align="right">65</td>
+</tr>
+<tr class="even">
+<td align="left">10/04/2000</td>
+<td align="left">B</td>
+<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">90</td>
+<td align="right">110</td>
+<td align="right">55</td>
+</tr>
+<tr class="odd">
+<td align="left">11/04/2000</td>
+<td align="left">A</td>
+<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">80</td>
+<td align="right">90</td>
+<td align="right">70</td>
+</tr>
+<tr class="even">
+<td align="left">11/04/2000</td>
+<td align="left">B</td>
+<td align="right">0</td>
+<td align="right">30</td>
+<td align="right">100</td>
+<td align="right">100</td>
+<td align="right">50</td>
+</tr>
+<tr class="odd">
+<td align="left">12/04/2000</td>
+<td align="left">A</td>
+<td align="right">0</td>
+<td align="right">37</td>
+<td align="right">120</td>
+<td align="right">100</td>
+<td align="right">60</td>
+</tr>
+<tr class="even">
+<td align="left">12/04/2000</td>
+<td align="left">B</td>
+<td align="right">0</td>
+<td align="right">35</td>
+<td align="right">110</td>
+<td align="right">110</td>
+<td align="right">30</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+<p>After creating the dummy data frame of clinical data, we can obtain
+the CO2e emissions and the carbon price index by the
+<code>clinical_theatre_data</code> function. This information can be
+conveniently presented in a table format:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># get emissions and CPI (carbon price index)</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">clinical_theatre_data</span>(df, <span class="at">time =</span> time, <span class="at">name =</span> theatre,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>                  <span class="at">wet_clinical_waste =</span> clinical_waste,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>                  <span class="at">wet_clinical_waste_unit =</span> <span class="st">&quot;kg&quot;</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>                  <span class="at">average =</span> general_waste,</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>                  <span class="at">plastic_units =</span> <span class="st">&quot;kg&quot;</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>                  <span class="at">electricity_kWh =</span> electricity_kwh,</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>                  <span class="at">include_cpi =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>                  <span class="at">jurisdiction =</span> <span class="st">&quot;Australia&quot;</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>                  <span class="at">year =</span> <span class="dv">2023</span>)</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">time</th>
+<th align="left">theatre</th>
+<th align="right">emissions</th>
+<th align="right">carbon_price_credit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">10/04/2000</td>
+<td align="left">A</td>
+<td align="right">0.2994651</td>
+<td align="right">3.185865</td>
+</tr>
+<tr class="even">
+<td align="left">10/04/2000</td>
+<td align="left">B</td>
+<td align="right">0.2799792</td>
+<td align="right">2.978564</td>
+</tr>
+<tr class="odd">
+<td align="left">11/04/2000</td>
+<td align="left">A</td>
+<td align="right">0.3122287</td>
+<td align="right">3.321652</td>
+</tr>
+<tr class="even">
+<td align="left">11/04/2000</td>
+<td align="left">B</td>
+<td align="right">0.2705084</td>
+<td align="right">2.877809</td>
+</tr>
+<tr class="odd">
+<td align="left">12/04/2000</td>
+<td align="left">A</td>
+<td align="right">0.3191129</td>
+<td align="right">3.394888</td>
+</tr>
+<tr class="even">
+<td align="left">12/04/2000</td>
+<td align="left">B</td>
+<td align="right">0.2199980</td>
+<td align="right">2.340453</td>
+</tr>
+</tbody>
+</table>
+<p>C:4de054e47239-to-carbonr.R</p>
+</div>
+</div>
+<div id="shiny-app" class="section level2">
+<h2>Shiny App</h2>
+<p>An interactive calculator using Shiny can be accessed by the
+<code>shiny_emissions()</code> function. This calculator uses some of
+the functions in the <code>carbonr</code> package:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">shiny_emissions</span>()</span></code></pre></div>
+<p>C:4de054e47239-to-carbonr.R</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<div id="other-online-calculators" class="section level4">
+<h4>Other Online Calculators:</h4>
+<ul>
+<li><a href="https://shop.climeco.com/individual/individual-emissions-calculator/">Carbonfund.org</a></li>
+<li><a href="https://www.carbonfootprint.com/calculatorfaqs.html">Carbon
+Footprint Calculator</a></li>
+</ul>
+</div>
+<div id="sources" class="section level4">
+<h4>Sources</h4>
+<ol style="list-style-type: decimal">
+<li><p>UK Government Report: Department for Energy Security and Net
+Zero. (2023). <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2023">Greenhouse
+Gas Reporting: Conversion Factors 2023</a>.</p></li>
+<li><p>Radiative Forcing Factor: DEFRA, 2016. Government GHG conversion
+factors for company reporting.</p></li>
+<li><p>Clinical Anaesthetic Emissions: Various sources including
+-</p></li>
+</ol>
+<p>Varughese, S. and Ahmed, R., 2021. Environmental and occupational
+considerations of anesthesia: a narrative review and update. Anesthesia
+&amp; Analgesia, 133(4), pp.826-835;</p>
+<p>McGain, F., Muret, J., Lawson, C. and Sherman, J.D., 2020.
+Environmental sustainability in anaesthesia and critical care. British
+Journal of Anaesthesia, 125(5), pp.680-692;</p>
+<p>Wyssusek, K., Chan, K.L., Eames, G. and Whately, Y., 2022. Greenhouse
+gas reduction in anaesthesia practice: a departmental environmental
+strategy. BMJ Open Quality, 11(3), p.e001867;</p>
+<p>Sherman, J., Le, C., Lamers, V. and Eckelman, M., 2012. Life cycle
+greenhouse gas emissions of anesthetic drugs. Anesthesia &amp;
+Analgesia, 114(5), pp.1086-1090.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>Clinical Wet Waste Emissions: Department of Climate Change, Energy,
+the Environment and Water. (2022).</li>
+</ol>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
