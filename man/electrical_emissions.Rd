@@ -2,80 +2,68 @@
 % Please edit documentation in R/electrical_emissions.R
 \name{electrical_emissions}
 \alias{electrical_emissions}
-\title{Calculate Electrical Emissions}
+\title{Electrical emissions}
 \usage{
 electrical_emissions(
-  fridges = 0,
-  freezers = 0,
-  large = 0,
-  IT = 0,
-  small = 0,
-  alkaline_batteries = 0,
-  LiIon_batteries = 0,
-  NiMh_batteries = 0,
-  fridges_WD = 0,
-  freezers_WD = 0,
-  large_WD = 0,
-  IT_WD = 0,
-  small_WD = 0,
-  alkaline_batteries_WD = 0,
-  LiIon_batteries_WD = 0,
-  NiMh_batteries_WD = 0,
+  use = stats::setNames(numeric(), character()),
+  waste = TRUE,
+  material_production = "Primary material production",
   waste_disposal = c("Landfill", "Open-loop"),
-  units = c("kg", "tonnes")
+  units = c("kg", "tonnes"),
+  value_col = c("value", "value_2024"),
+  strict = TRUE
 )
 }
 \arguments{
-\item{fridges}{Numeric value indicating the weight of fridges. Default is \code{0}.}
+\item{use}{Named numeric vector of quantities in tonnes.
+Canonical names supported:
+\code{fridges}, \code{freezers}, \code{large_electrical}, \code{it}, \code{small_electrical},
+\code{alkaline_batteries}, \code{liion_batteries}, \code{nimh_batteries}.
+Aliases accepted (case/punct-insensitive), e.g. \code{"fridge"}, \code{"freezer"},
+\code{"large"}, \code{"it equipment"}, \code{"small"}, \code{"alkaline"}, \code{"liion"}, \code{"ni mh"},
+Unknown names warn and are ignored.}
 
-\item{freezers}{Numeric value indicating the weight of freezers. Default is \code{0}.}
+\item{waste}{Logical. If \code{TRUE}, waste tonnages equal \code{use}. If \code{FALSE}, no waste.}
 
-\item{large}{Numeric value indicating the weight of large electrical items. Default is \code{0}.}
+\item{material_production}{Either a single string for all items
+(e.g., \code{"Primary material production"}) or a named vector per item.
+Synonyms accepted: \code{"primary"}, \code{"closed loop"}, etc. (If a chosen option is
+absent in the table, behaviour depends on \code{strict}.)}
 
-\item{IT}{Numeric value indicating the weight of IT (Information Technology) equipment. Default is \code{0}.}
+\item{waste_disposal}{One of \code{"Landfill"} or \code{"Open-loop"}. Applied to all waste.}
 
-\item{small}{Numeric value indicating the weight of small electrical items. Default is \code{0}.}
+\item{units}{Output units: \code{"kg"} (default) or \code{"tonnes"}.}
 
-\item{alkaline_batteries}{Numeric value indicating the weight of alkaline batteries. Default is \code{0}.}
+\item{value_col}{Which numeric column to use: \code{"value"} or \code{"value_2024"}.}
 
-\item{LiIon_batteries}{Numeric value indicating the weight of Lithium-ion batteries. Default is \code{0}.}
-
-\item{NiMh_batteries}{Numeric value indicating the weight of Nickel Metal Hydride batteries. Default is \code{0}.}
-
-\item{fridges_WD}{Numeric value indicating the weight of fridges disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{freezers_WD}{Numeric value indicating the weight of freezers disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{large_WD}{Numeric value indicating the weight of large electrical items disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{IT_WD}{Numeric value indicating the weight of IT equipment disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{small_WD}{Numeric value indicating the weight of small electrical items disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{alkaline_batteries_WD}{Numeric value indicating the weight of alkaline batteries disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{LiIon_batteries_WD}{Numeric value indicating the weight of Lithium-ion batteries disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{NiMh_batteries_WD}{Numeric value indicating the weight of Nickel Metal Hydride batteries disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{waste_disposal}{Character vector specifying the waste disposal method to use for calculating emissions. Possible values: \code{"Landfill"}, \code{"Open-loop"}. Default is \code{"Landfill"}.
-\code{"Open-loop"} is the process of recycling material into other products.
-\code{"Landfill"} the product goes to landfill after use.}
-
-\item{units}{Character vector specifying the units of the emissions output. Possible values: \code{"kg"}, \code{"tonnes"}. Default is \code{"kg"}.}
+\item{strict}{If \code{TRUE} (default), error when any nonzero \code{use}/waste needs a
+factor missing from the table. If \code{FALSE}, treat missing factors as \code{0}.}
 }
 \value{
-The calculated electrical emissions as a numeric value in tonnes.
+Numeric total emissions in requested \code{units}.
 }
 \description{
-This function calculates the emissions produced from different electrical items and their waste disposal based on the specified inputs. It considers emissions from primary material production and waste disposal of electrical items.
+Computes embodied GHG emissions for electrical items using \code{uk_gov_data} rows with
+Level 2 = "Electrical items". Material-use factors come from
+\verb{Level 1 = "Material use", Column Text = material_production} (your table
+currently provides Primary material production only). Waste factors come
+from \verb{Level 1 = "Waste disposal", Column Text = waste_disposal}.
+Factors are kg CO2e per tonne.
 }
 \examples{
-# Calculate electrical emissions using default values
-electrical_emissions()
+# Primary production + landfill; waste = use
+electrical_emissions(
+  use = c(fridges = 1, freezers = 0.5, large_electrical = 0.2),
+  waste_disposal = "Landfill",
+  waste = TRUE,
+  units = "kg"
+)
 
-# Calculate electrical emissions with specific quantities and waste disposal
-# method
-electrical_emissions(fridges = 10, IT = 5, alkaline_batteries = 100,
-                     waste_disposal = "Open-loop", units = "tonnes")
+# 2024 factors, no waste, report in tonnes
+electrical_emissions(
+  use = c(it = 0.01, liion_batteries = 0.002),
+  value_col = "value_2024",
+  waste = FALSE,
+  units = "tonnes"
+)
 }

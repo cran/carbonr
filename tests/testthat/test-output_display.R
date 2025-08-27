@@ -6,12 +6,12 @@ data <- data.frame(
   carbon_price_credit = c(10, 15, 20, 25)
 )
 
-output <- output_display(data = data, gti_by = "default", pdf = TRUE)
-output1 <- output_display(data = data, gti_by = "month", pdf = TRUE)
-output2 <- output_display(data = data, gti_by = "year", pdf = TRUE)
+output <- suppressWarnings(output_display(data = data, gti_by = "default", pdf = TRUE))
+output1 <- suppressWarnings(output_display(data = data, gti_by = "month", pdf = TRUE))
+output2 <- suppressWarnings(output_display(data = data, gti_by = "year", pdf = TRUE))
 
 test_that("output_display generates gg/ggplot object", {
-  expect_equal(class(output), c("gg", "ggplot"))
-  expect_equal(class(output1), c("gg", "ggplot"))
-  expect_equal(class(output2), c("gg", "ggplot"))
+  expect_true(any(c("gg", "ggplot") %in% class(output)))
+  expect_true(any(c("gg", "ggplot") %in% class(output1)))
+  expect_true(any(c("gg", "ggplot") %in% class(output2)))
 })

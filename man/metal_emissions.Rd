@@ -2,58 +2,72 @@
 % Please edit documentation in R/metal_emissions.R
 \name{metal_emissions}
 \alias{metal_emissions}
-\title{Metal Emissions}
+\title{Metal emissions (UK govt schema; table-driven, with material_production)}
 \usage{
 metal_emissions(
-  aluminuim_cans = 0,
-  aluminuim_foil = 0,
-  mixed_cans = 0,
-  scrap = 0,
-  steel_cans = 0,
-  aluminuim_cans_WD = 0,
-  aluminuim_foil_WD = 0,
-  mixed_cans_WD = 0,
-  scrap_WD = 0,
-  steel_cans_WD = 0,
+  use = stats::setNames(numeric(), character()),
+  waste = TRUE,
+  material_production = "Primary material production",
   waste_disposal = c("Closed-loop", "Combustion", "Landfill", "Open-loop"),
-  units = c("kg", "tonnes")
+  units = c("kg", "tonnes"),
+  value_col = c("value", "value_2024"),
+  strict = TRUE
 )
 }
 \arguments{
-\item{aluminuim_cans}{Numeric value indicating the weight of aluminum cans. Default is \code{0}.}
+\item{use}{Named numeric vector of metal quantities in tonnes.
+Canonical names supported: \code{aluminium}, \code{mixed_cans}, \code{scrap}, \code{steel_cans}.
+Aliases accepted (case/punct/UK-US spelling-insensitive), e.g.:
+\code{"Metal: aluminium cans and foil (excl. forming)"}, \code{aluminum_cans},
+\code{aluminium_foil}, \code{mixed}, \code{scrap_metal}, etc.
+Unknown names warn and are ignored.}
 
-\item{aluminuim_foil}{Numeric value indicating the weight of aluminum foil. Default is \code{0}.}
+\item{waste}{Logical. If \code{TRUE}, waste tonnages are the same as \code{use}.
+If \code{FALSE}, no waste is applied.}
 
-\item{mixed_cans}{Numeric value indicating the weight of mixed metal cans. Default is \code{0}.}
+\item{material_production}{Either a single string applied to all metals, or a
+named vector per metal type. Accepted values (matched leniently):
+\code{"Primary material production"}, \code{"Closed-loop source"}, \code{"Closed-loop"},
+\code{"Open-loop"}, \code{"Combustion"}, \code{"Landfill"}.
+Synonyms accepted: \code{"primary"}, \code{"closed loop"}, \code{"open loop"}, etc.
+Unspecified metals default to \code{"Primary material production"}.}
 
-\item{scrap}{Numeric value indicating the weight of metal scrap. Default is \code{0}.}
+\item{waste_disposal}{One of \code{"Closed-loop"}, \code{"Combustion"}, \code{"Landfill"},
+\code{"Open-loop"}. Applied to all waste.}
 
-\item{steel_cans}{Numeric value indicating the weight of steel cans. Default is \code{0}.}
+\item{units}{Output units: \code{"kg"} (default) or \code{"tonnes"}.}
 
-\item{aluminuim_cans_WD}{Numeric value indicating the weight of aluminum cans disposed of using waste disposal methods. Default is \code{0}.}
+\item{value_col}{Which numeric column in \code{uk_gov_data} to use: \code{"value"} or \code{"value_2024"}.}
 
-\item{aluminuim_foil_WD}{Numeric value indicating the weight of aluminum foil disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{mixed_cans_WD}{Numeric value indicating the weight of mixed metal cans disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{scrap_WD}{Numeric value indicating the weight of metal scrap disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{steel_cans_WD}{Numeric value indicating the weight of steel cans disposed of using waste disposal methods. Default is \code{0}.}
-
-\item{waste_disposal}{Character vector specifying the waste disposal method to use for calculating emissions. Possible values: "Closed-loop", "Combustion", "Landfill", "Open-loop". Default is "Closed-loop".
-\code{"Open-loop"} is the process of recycling material into other products.
-\code{"Closed-loop"} is the process of recycling material back into the same product.
-\code{"Combustion"} energy is recovered from the waste through incineration and subsequent generation of electricity.
-\code{"Landfill"} the product goes to landfill after use.}
-
-\item{units}{Character vector specifying the units of the emissions output. Possible values: "kg", "tonnes". Default is "kg".}
+\item{strict}{If \code{TRUE} (default), error when any nonzero \code{use}/waste needs a
+factor absent in the table. If \code{FALSE}, treat missing factors as 0.}
 }
 \value{
-The function returns the calculated CO2-equivalent emissions as a numeric value in tonnes.
+Numeric total emissions in requested \code{units}.
 }
 \description{
-This function calculates the emissions produced from different metal sources based on the specified inputs. It considers emissions from primary material production and waste disposal of various metal types.
+Computes embodied GHG emissions for metals using \code{uk_gov_data} rows with
+Level 2 = "Metal". Material-use factors come from
+\verb{Level 1 = "Material use", Column Text = material_production}. Waste factors
+come from \verb{Level 1 = "Waste disposal", Column Text = waste_disposal}.
+Factors are kg CO2e per tonne.
 }
 \examples{
-metal_emissions(aluminuim_cans = 1.4, units = "tonnes")
+# Primary for all; landfill; waste = use
+metal_emissions(
+  use = c(aluminium = 1.2, steel_cans = 0.4),
+  material_production = "Primary material production",
+  waste_disposal = "Landfill",
+  waste = TRUE,
+  units = "kg"
+)
+
+# Per-metal: aluminium closed-loop source, others primary; no waste; 2024 factors
+metal_emissions(
+  use = c(`Metal: aluminium cans and foil (excl. forming)` = 0.5, mixed_cans = 0.2),
+  material_production = c(aluminium = "closed loop"),
+  waste = FALSE,
+  value_col = "value_2024",
+  units = "tonnes"
+)
 }

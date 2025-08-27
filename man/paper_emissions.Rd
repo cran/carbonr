@@ -2,46 +2,68 @@
 % Please edit documentation in R/paper_emissions.R
 \name{paper_emissions}
 \alias{paper_emissions}
-\title{Paper Emissions}
+\title{Paper emissions}
 \usage{
 paper_emissions(
-  board = 0,
-  mixed = 0,
-  paper = 0,
-  board_WD = 0,
-  mixed_WD = 0,
-  paper_WD = 0,
+  use = stats::setNames(numeric(), character()),
+  waste = TRUE,
+  material_production = "Primary material production",
   waste_disposal = c("Closed-loop", "Combustion", "Composting", "Landfill"),
-  units = c("kg", "tonnes")
+  units = c("kg", "tonnes"),
+  value_col = c("value", "value_2024"),
+  strict = TRUE
 )
 }
 \arguments{
-\item{board}{Numeric value indicating the weight of paperboard. Default is \code{0}.}
+\item{use}{Named numeric vector of paper quantities in tonnes.
+Names matched case/space/punctuation-insensitively to \verb{Level 3}
+(drops a leading \code{"Paper: "} prefix and trailing parentheses).
+Canonical names: \code{board}, \code{mixed}, \code{paper}. Unknown names warn and are ignored.}
 
-\item{mixed}{Numeric value indicating the weight of mixed paper. Default is \code{0}.}
+\item{waste}{Logical. If \code{TRUE}, waste tonnages are the same as \code{use}.
+If \code{FALSE}, no waste is applied.}
 
-\item{paper}{Numeric value indicating the weight of paper. Default is \code{0}.}
+\item{material_production}{Either a single string applied to all paper types
+(e.g., \code{"Primary material production"} or \code{"Closed-loop source"}),
+or a named vector per paper type, e.g.
+\code{c(board = "Closed-loop source", mixed = "Primary material production")}.
+If you provide a per-material vector for a subset, unspecified types default to
+\code{"Primary material production"}.}
 
-\item{board_WD}{Numeric value indicating the weight of paperboard disposed of using waste disposal methods. Default is \code{0}.}
+\item{waste_disposal}{One of \code{"Closed-loop"}, \code{"Combustion"}, \code{"Composting"}, \code{"Landfill"}.}
 
-\item{mixed_WD}{Numeric value indicating the weight of mixed paper disposed of using waste disposal methods. Default is \code{0}.}
+\item{units}{Output units: \code{"kg"} (default) or \code{"tonnes"}.}
 
-\item{paper_WD}{Numeric value indicating the weight of paper disposed of using waste disposal methods. Default is \code{0}.}
+\item{value_col}{Which numeric column in \code{uk_gov_data} to use: \code{"value"} or \code{"value_2024"}.}
 
-\item{waste_disposal}{Character vector specifying the waste disposal method to use for calculating emissions. Possible values: \code{"Closed-loop"}, \code{"Combustion"}, \code{"Composting"}, \code{"Landfill"}. Default is \code{"Closed-loop"}.
-\code{"Closed-loop"} is the process of recycling material back into the same product.
-\code{"Combustion"} energy is recovered from the waste through incineration and subsequent generation of electricity.
-\code{"Compost"} CO2e emitted as a result of composting a waste stream.
-\code{"Landfill"} the product goes to landfill after use.}
-
-\item{units}{Character vector specifying the units of the emissions output. Possible values: \code{"kg"}, \code{"tonnes"}. Default is \code{"kg"}.}
+\item{strict}{If \code{TRUE} (default), error when any nonzero \code{use}/waste needs a
+factor that is absent in the table. If \code{FALSE}, treat missing factors as 0.}
 }
 \value{
-The function returns the calculated paper emissions as a numeric value in tonnes.
+Numeric total emissions in requested \code{units}.
 }
 \description{
-This function calculates the emissions produced from different paper sources based on the specified inputs. It considers emissions from primary material production and waste disposal of paper materials.
+Computes embodied GHG emissions for paper using \code{uk_gov_data} rows with
+Level 2 = "Paper". Material-use factors come from
+\verb{Level 1 = "Material use", Column Text = material_production}.
+Waste factors come from \verb{Level 1 = "Waste disposal", Column Text = waste_disposal}.
+Factors are kg CO2e per tonne.
 }
 \examples{
-paper_emissions(board = 10, board_WD = 10, paper = 100, paper_WD = 100, units = "kg")
+# Closed-loop source for all paper types; landfill; waste = use
+paper_emissions(
+  use = c(board = 10, paper = 100),
+  material_production = "Closed-loop source",
+  waste_disposal = "Landfill",
+  waste = TRUE
+)
+
+# Per-material: board closed-loop, mixed primary (default), no waste
+paper_emissions(
+  use = c(board = 5, mixed = 2),
+  material_production = c(board = "closed loop"),
+  waste = FALSE,
+  value_col = "value_2024",
+  units = "tonnes"
+)
 }
